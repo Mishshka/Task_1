@@ -20,12 +20,17 @@ namespace fs = filesystem;
 const string ENG_let = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 const string RUS_let = "јЅ¬√ƒ≈®∆«»… ЋћЌќѕ–—“”‘’÷„ЎўЏџ№ёяaабвгдеЄжзийклмнопрстуфхцчшщъыью€";
 const string num = "0123456789";
-const string SPec = "~!@#$%^&*()+`'\"; :<> / \ |";
+const string SPec = "~!@#$%^&*()+`'\"; :<> / \\ |";
 
 //функции
-string choose_folder(); //выбор папки
-void write_to_file(string folder_name); // запись в новый файл
-int count_files(string folder_name); // число файлов
-string* get_filenames(string folder_name); // массив из имен файлов
-void write_stud(ofstream* fout); // ввод в файл студентов
-void write_pas(ofstream* fout); // ввод в файл паролей
+void write_to_file(string folder_name); // функци€ записи в новый файл
+void add_to_file(string folder_name); // функци€ записи в существующий файл
+
+int count_files(string folder_name); // функци€ получени€ числа файлов
+string* get_filenames(string folder_name); //  функци€ дл€ получени€ массива из имен файлов
+void write_stud(ofstream* fout); // функци€ ввода в файл студентов
+void write_pas(ofstream* fout); // функци€ ввода в файл паролей
+
+void ClearScreen(); // функци€ дл€ очистки экрана консоли
+void ShowMenu(int selected); //функци€ дл€ вывода меню
+void ShowActive(int selected);
