@@ -67,6 +67,16 @@ void write_stud(FILE* fout) {
                 fl = -1;
             }
             else {
+                if (inp[0] >= -32 and inp[0] <= -1) {
+                    inp[0] -= 32;
+                }
+                for (int l_c = 1; l_c < strlen(inp); l_c++) {
+                    if (inp[l_c] <= -32) inp[l_c] = inp[l_c]+32;
+                    if (inp[l_c] >= -32 and inp[l_c - 1] == 45)
+                    {
+                        inp[l_c] -= 32;
+                    }
+                }
                 strncpy_s(st_in.family, inp, sizeof(st_in.family) - 1);
                 fl = 1;
             }
