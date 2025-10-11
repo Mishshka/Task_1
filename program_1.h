@@ -18,7 +18,7 @@ namespace fs = filesystem;
 
 //константы с возможными символами
 const string ENG_let = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-const string RUS_let = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЮЯaабвгдеёжзийклмнопрстуфхцчшщъыьюя";
+const string RUS_let = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
 const string num = "0123456789";
 const string SPec = "~!@#$%^&*()+`'\"; :<> / \\ |";
 
@@ -28,9 +28,20 @@ void add_to_file(string folder_name); // функция записи в существующий файл
 
 int count_files(string folder_name); // функция получения числа файлов
 string* get_filenames(string folder_name); //  функция для получения массива из имен файлов
-void write_stud(ofstream* fout); // функция ввода в файл студентов
-void write_pas(ofstream* fout); // функция ввода в файл паролей
+void write_stud(FILE* fout); // функция ввода в файл студентов
+void write_pas(FILE* fout); // функция ввода в файл паролей
 
 void ClearScreen(); // функция для очистки экрана консоли
 void ShowMenu(int selected); //функция для вывода меню
 void ShowActive(int selected);
+
+struct Stud { //структура студентов
+	char family[256];
+	char group[256];
+	char gr_ind[256];
+};
+struct Pass { //структура паролей
+	char group[256];
+	char gr_ind[256];
+	char password[256];
+};
