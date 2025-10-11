@@ -67,12 +67,12 @@ void write_stud(FILE* fout) {
                 fl = -1;
             }
             else {
-                if (inp[0] >= -32 and inp[0] <= -1) {
+                if (inp[0] >= -33 and inp[0] <= -1) {
                     inp[0] -= 32;
                 }
                 for (int l_c = 1; l_c < strlen(inp); l_c++) {
-                    if (inp[l_c] <= -32) inp[l_c] = inp[l_c]+32;
-                    if (inp[l_c] >= -32 and inp[l_c - 1] == 45)
+                    if (inp[l_c] <= -33) inp[l_c] = inp[l_c]+32;
+                    if (inp[l_c] >= -33 and inp[l_c - 1] == 45)
                     {
                         inp[l_c] -= 32;
                     }
@@ -220,7 +220,7 @@ void write_stud(FILE* fout) {
             if (ans == 13) { // Enter - подтверждение
                 fprintf(fout, "%s;%s;%s\n", st_in.family, st_in.group, st_in.gr_ind);
                 printf("\nДанные успешно записаны!\n");
-                printf("\nПродолжаем запись:\n");
+                printf("\n\nДля безопасного выхода введите пустую строку\nПродолжаем запись.\n");
                 val_date = true;
             }
             else if (ans == 82 || ans == 114) { // R или r - перезапись
