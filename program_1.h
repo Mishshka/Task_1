@@ -20,7 +20,7 @@ namespace fs = filesystem;
 const string ENG_let = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 const string RUS_let = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
 const string num = "0123456789";
-const string SPec = "~!@#$%^&*()+`'\"; :<> / \\ |";
+const string SPec = "~!@#$%^&*()+`'\":<> / |";
 
 //функции
 void write_to_file(string folder_name); // функция записи в новый файл

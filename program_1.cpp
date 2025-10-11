@@ -195,30 +195,36 @@ void write_stud(FILE* fout) {
             _getch();
         }
         // Подтверждение данных
-        printf("\nПроверьте правильность вносимых данных:\n");
-        printf("Фамилия: %s\n", st_in.family);
-        printf("Группа: %s\n", st_in.group);
-        printf("Номер по списку: %s\n", st_in.gr_ind);
-        printf("\nДля подтверждения данных нажмите Enter.\n");
-        printf("Для перезаписи нажмите R.\n");
-        printf("Для возврата в меню нажмите ESC.\n");
+        bool val_date = false;
+        while (!val_date) {
+            printf("\nПроверьте правильность вносимых данных:\n");
+            printf("Фамилия: %s\n", st_in.family);
+            printf("Группа: %s\n", st_in.group);
+            printf("Номер по списку: %s\n", st_in.gr_ind);
+            printf("\nДля подтверждения данных нажмите Enter.\n");
+            printf("Для перезаписи нажмите R.\n");
+            printf("Для возврата в меню нажмите ESC.\n");
 
-        int ans = _getch();
+            int ans = _getch();
 
-        if (ans == 13) { // Enter - подтверждение
-            fprintf(fout, "%s;%s;%s\n", st_in.family, st_in.group, st_in.gr_ind);
-            printf("\nДанные успешно записаны!\n");
-            printf("\nПродолжаем запись:\n");
+            if (ans == 13) { // Enter - подтверждение
+                fprintf(fout, "%s;%s;%s\n", st_in.family, st_in.group, st_in.gr_ind);
+                printf("\nДанные успешно записаны!\n");
+                printf("\nПродолжаем запись:\n");
+                val_date = true;
             }
-        else if (ans == 82 || ans == 114) { // R или r - перезапись
-            printf("\nПерезапись данных...\n\n");
+            else if (ans == 82 || ans == 114) { // R или r - перезапись
+                printf("\nПерезапись данных...\n\n");
+                val_date = true;
             }
-        else if (ans == 27) { // ESC - выход
-            printf("\nВозврат в меню...\n");
-            ex = false;
-        }
-        else {
-            printf("\nНеизвестная команда. Повторите ввод.\n\n");
+            else if (ans == 27) { // ESC - выход
+                printf("\nВозврат в меню...\n");
+                ex = false;
+                val_date = true;
+            }
+            else {
+                printf("\nНеизвестная команда. Повторите ввод.\n\n");
+            }
         }
     }
 }
@@ -226,8 +232,7 @@ void write_stud(FILE* fout) {
 void write_pas(FILE* fout) { // функция для заполнения файла с паролями
     ClearScreen();
     printf("Для ввода информации о паролях, заполните поля ниже.\nНажмите Enter для подтверждения ввода или введите пустую строку для возвращения в меню. \n");
-
-    Pass pw_in;
+    Pass pas_in;
     char inp[256];
     bool ex = true;
 
@@ -235,105 +240,198 @@ void write_pas(FILE* fout) { // функция для заполнения фа�
 
         int i = 0;
         int symb;
-
-
-        // Ввод группы
-        printf("Введите группу студента: ");
-        fgets(inp, 256, stdin);
+        int fl = -1; //проверка на правильность введеной информации
         
-        // Проверка на ESC
-        while (i < sizeof(inp)-1) {
-            symb = inp[i];
-            if (i == 0 and symb == 10) {
-                ex = false;
+        // Ввод группы
+        while (fl != 1) {
+            printf("Введите группу студента: ");
+            fgets(inp, 256, stdin);
+
+            // Проверка на ESC
+            while (i < sizeof(inp) - 1) {
+                symb = inp[i];
+                if (i == 0 and symb == 10) {
+                    ex = false;
+                    break;
+                }
+                else if (symb == 10 and i != 0) {
+                    break;
+                }
+                else {
+                    i++;
+                }
+            }
+            if (ex == false) {
+                fl = 1;
                 break;
             }
-            else if (symb == 10 and i!=0) {
-                break;
+            i = 0;
+
+            // Проверка допустимых символов
+            inp[strlen(inp) - 1] = '\0';
+            string str(inp);
+            if (str.find_first_not_of(RUS_let + num + '-') != string::npos) {
+                printf("\nОшибка\nПоле Группа может состоять только из букв русского алфавита, цифр и дефиса\nПовторите ввод\n");
+                fl = -1;
             }
             else {
-                i++;
+                strncpy_s(pas_in.group, inp, sizeof(pas_in.group) - 1);
+                fl = 1;
             }
+
         }
-        if (ex == false) break;
-        i = 0;
+        if (ex == false) {
+            break;
+        }
+        fl = -1;
 
-        inp[strcspn(inp, "\n")] = 0;
-        strncpy_s(pw_in.group, inp, sizeof(pw_in.group) - 1);
+        // Ввод номера по списку
+        while (fl != 1) {
+            printf("Введите номер по списку студента: ");
+            fgets(inp, 256, stdin);
 
-        // Ввод номера 
-        printf("Введите номер студента по списку: ");
-        fgets(inp, 256, stdin);
-
-        // Проверка на ESC
-        while (i < sizeof(inp) - 1) {
-            symb = inp[i];
-            if (i == 0 and symb == 10) {
-                ex = false;
+            // Проверка на ESC
+            while (i < sizeof(inp) - 1) {
+                symb = inp[i];
+                if (i == 0 and symb == 10) {
+                    ex = false;
+                    break;
+                }
+                else if (symb == 10 and i != 0) {
+                    break;
+                }
+                else {
+                    i++;
+                }
+            }
+            if (ex == false) {
+                fl = 1;
                 break;
             }
-            else if (symb == 10 and i!=0) {
-                break;
+            i = 0;
+            // Проверка допустимых символов
+            inp[strlen(inp) - 1] = '\0';
+            string str(inp);
+            if (str.find_first_not_of(num + '-') != string::npos) {
+                printf("\nОшибка\nДля записи номера по списку используйте только цифры или символ \"-\"\nПовторите ввод\n");
+                fl = -1;
             }
             else {
-                i++;
+                strncpy_s(pas_in.gr_ind, inp, sizeof(pas_in.gr_ind) - 1);
+                fl = 1;
             }
+
         }
-        if (ex == false) break;
-        i = 0;
-
-        inp[strcspn(inp, "\n")] = 0;
-        strncpy_s(pw_in.gr_ind, inp, sizeof(pw_in.gr_ind) - 1);
-
+        if (ex == false) {
+            break;
+        }
+        fl = -1;
         // Ввод пароля
-        printf("Введите пароль студента: ");
-        fgets(inp, 256, stdin);
+        while (fl != 1) {
+            printf("Введите пароль студента: ");
+            fgets(inp, 256, stdin);
 
-        // Проверка на ESC
-        while (i < sizeof(inp) - 1) {
-            symb = inp[i];
-            if (i == 0 and symb == 10) {
-                ex = false;
+            // Проверка на ESC
+            while (i < sizeof(inp) - 1) {
+                symb = inp[i];
+                if (i == 0 and symb == 10) {
+                    ex = false;
+                    break;
+                }
+                else if (symb == 10 and i != 0) {
+                    break;
+                }
+                else {
+                    i++;
+                }
+            }
+            if (ex == false) {
+                fl = 1;
                 break;
             }
-            else if (symb == 10 and i!=0) {
-                break;
+            i = 0;
+            // Проверка допустимых символов
+            inp[strlen(inp) - 1] = '\0';
+            string str(inp);
+            if (str.find_first_not_of(num + ENG_let + SPec) != string::npos) {
+                printf("\nОшибка\nДля записи пароля используйте только буквы латинского алфавита, цифры или символы \"~!@#$ % ^&*() + `'\" :<> / |\"\nПовторите ввод\n");
+                fl = -1;
             }
             else {
-                i++;
+                strncpy_s(pas_in.password, inp, sizeof(pas_in.password) - 1);
+                fl = 1;
+            }
+
+        }
+        if (ex == false) {
+            break;
+        }
+        fl = -1;
+
+
+        // Временное сохранение позиции файла
+        long current_pos = ftell(fout);
+
+        // Проверка на дубликаты
+        rewind(fout); // Перемещаемся в начало файла для чтения
+
+        char line[256];
+        bool duplicate_found = false;
+        char* context = NULL;
+        while (fgets(line, sizeof(line), fout)) {
+            line[strcspn(line, "\n")] = 0; // Убираем перевод строки
+
+            char* group = strtok_s(line, ";", &context);
+            char* gr_ind = strtok_s(NULL, ";", &context);
+            char* password = strtok_s(NULL, ";", &context);
+
+            if (password && group && gr_ind) {
+                if (strcmp(pas_in.group, group) == 0 && strcmp(pas_in.gr_ind, gr_ind) == 0) {
+                    printf("\nВнимание\nВ файле уже имеется запись %s %s %s\n",
+                        group, gr_ind, password);
+                    duplicate_found = true;
+
+                }
             }
         }
-        if (ex == false)break;
-        i = 0;
 
-        inp[strcspn(inp, "\n")] = 0;
-        strncpy_s(pw_in.password, inp, sizeof(pw_in.password) - 1);
-
+        // Возвращаемся на позицию для записи
+        fseek(fout, current_pos, SEEK_SET);
+        if (duplicate_found == true) {
+            printf("\nДля продолжения нажмите на любую клавишу\n");
+            _getch();
+        }
         // Подтверждение данных
-        printf("\nПроверьте правильность вносимых данных:\n");
-        printf("Фамилия: %s\n", pw_in.group);
-        printf("Группа: %s\n", pw_in.gr_ind);
-        printf("Номер по списку: %s\n", pw_in.password);
-        printf("\nДля подтверждения данных нажмите Enter.\n");
-        printf("Для перезаписи нажмите R.\n");
-        printf("Для возврата в меню нажмите ESC.\n");
+        bool val_date = false;
+        while (!val_date) {
+            printf("\nПроверьте правильность вносимых данных:\n");
+            printf("Группа: %s\n", pas_in.group);
+            printf("Номер по списку: %s\n", pas_in.gr_ind);
+            printf("Пароль: %s\n", pas_in.password);
+            printf("\nДля подтверждения данных нажмите Enter.\n");
+            printf("Для перезаписи нажмите R.\n");
+            printf("Для возврата в меню нажмите ESC.\n");
 
-        int ans = _getch();
+            int ans = _getch();
 
-        if (ans == 13) { // Enter - подтверждение
-            fprintf(fout, "%s;%s;%s\n", pw_in.group, pw_in.gr_ind, pw_in.password);
-            printf("\nДанные успешно записаны!\n");
-            printf("\nПродолжаем запись:\n");
-        }
-        else if (ans == 82 || ans == 114) { // R или r - перезапись
-            printf("\nПерезапись данных...\n\n");
-        }
-        else if (ans == 27) { // ESC - выход
-            printf("\nВозврат в меню...\n");
-            ex = false;
-        }
-        else {
-            printf("\nНеизвестная команда. Повторите ввод.\n\n");
+            if (ans == 13) { // Enter - подтверждение
+                fprintf(fout, "%s;%s;%s\n", pas_in.group, pas_in.gr_ind, pas_in.password);
+                printf("\nДанные успешно записаны!\n");
+                printf("\nПродолжаем запись:\n");
+                val_date = true;
+            }
+            else if (ans == 82 || ans == 114) { // R или r - перезапись
+                printf("\nПерезапись данных...\n\n");
+                val_date = true;
+            }
+            else if (ans == 27) { // ESC - выход
+                printf("\nВозврат в меню...\n");
+                ex = false;
+                val_date = true;
+            }
+            else {
+                printf("\nНеизвестная команда. Повторите ввод.\n\n");
+            }
         }
     }
 }
