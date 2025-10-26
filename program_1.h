@@ -22,6 +22,8 @@ const string RUS_let = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфх
 const string num = "0123456789";
 const string SPec = "~!@#$%^&*()+`'\":<> / |";
 
+const int size_c = 256;
+
 //функции
 void write_to_file(string folder_name); // функция записи в новый файл
 void add_to_file(string folder_name); // функция записи в существующий файл
@@ -33,15 +35,15 @@ void write_pas(FILE* fout); // функция ввода в файл паролей
 
 void ClearScreen(); // функция для очистки экрана консоли
 void ShowMenu(int selected); //функция для вывода меню
-void ShowActive(int selected);
+void ShowActive(int selected); // функция выбора записываемой информации
 
 struct Stud { //структура студентов
-	char family[256];
-	char group[256];
-	char gr_ind[256];
+	char family[size_c];
+	char group[size_c];
+	char gr_ind[size_c];
 };
 struct Pass { //структура паролей
-	char group[256];
-	char gr_ind[256];
-	char password[256];
+	char group[size_c];
+	char gr_ind[size_c];
+	char password[size_c];
 };
