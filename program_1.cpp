@@ -19,11 +19,15 @@ string* get_filenames(string folder_name) { // функция для созда�
 }
 void write_stud(FILE* fout) {
 	ClearScreen();
-	printf("Для ввода информации о студентах, заполните поля ниже.\nНажмите Enter для подтверждения ввода или введите '#'  для возвращения в меню без сохранения введенных данных.\nВ случае, когда информация для данного поля отсутствует введите '-'\n");
+	printf("Для ввода информации о студентах, заполните поля ниже.\nНажмите\
+ Enter для подтверждения ввода или введите '#'  для возвращения в меню без сохранения введенных данных.\nВ случае, когда информация для данного поля отсутствует введите '-'\n\
+Введение '0' в поле 'номер по списку' равносильно введению '-'.\n\n");
 	Stud st_in;
 	char inp[size_c];
 	bool ex = true;
 	int a;
+	int max_fam(0), max_num(0), max_gr(0);
+	fseek(fout, 0, SEEK_END);
 	while (ex) {
 		int fl = -1; //проверка на правильность введеной информации
 		// Ввод фамилии
@@ -54,7 +58,8 @@ void write_stud(FILE* fout) {
 				fl = -1;
 			}
 			else if ((inp[strlen(inp) - 1] == '-' and strlen(inp) > 1)) {
-				printf("\nОшибка\nПоле не должно заканчиваться символом '-'\nПовторите ввод\n");
+				printf("%*c\n", strlen(inp) + 26, '^');
+				printf("\nОшибка\nБуквенная комбинация не может оканчиваться символом '-'.\nПовторите ввод\n");
 				fl = -1;
 			}
 			else {
@@ -69,6 +74,9 @@ void write_stud(FILE* fout) {
 					}
 				}
 				strncpy_s(st_in.family, inp, sizeof(st_in.family) - 1);
+				if (strlen(st_in.family) > max_fam) {
+					max_fam = strlen(st_in.family);
+				}
 				fl = 1;
 			}
 		}
@@ -109,6 +117,9 @@ void write_stud(FILE* fout) {
 			}
 			else {
 				strncpy_s(st_in.group, inp, sizeof(st_in.group) - 1);
+				if (strlen(st_in.group) > max_gr) {
+					max_gr = strlen(st_in.group);
+				}
 				fl = 1;
 			}
 		}
@@ -183,6 +194,9 @@ void write_stud(FILE* fout) {
 				}
 				else {
 					strncpy_s(st_in.gr_ind, inp, sizeof(st_in.gr_ind) - 1);
+					if (strlen(st_in.gr_ind) > max_num) {
+						max_num = strlen(st_in.gr_ind);
+					}
 					fl = 1;
 				}
 			}
@@ -191,32 +205,7 @@ void write_stud(FILE* fout) {
 			break;
 		}
 		fl = -1;
-		// Временное сохранение позиции файла
-		long current_pos = ftell(fout);
-		// Проверка на дубликаты
-		rewind(fout); // Перемещаемся в начало файла для чтения
-		char line[size_c];
-		bool duplicate_found = false;
-		char* context = NULL;
-		while (fgets(line, sizeof(line), fout)) {
-			line[strcspn(line, "\n")] = 0; // Убираем перевод строки
-			char* family = strtok_s(line, ";", &context);
-			char* group = strtok_s(NULL, ";", &context);
-			char* gr_ind = strtok_s(NULL, ";", &context);
-			if (family && group && gr_ind) {
-				if (strcmp(st_in.group, group) == 0 && strcmp(st_in.gr_ind, gr_ind) == 0) {
-					printf("\nВнимание\nВ файле уже имеется запись %s %s %s\n",
-						family, group, gr_ind);
-					duplicate_found = true;
-				}
-			}
-		}
-		// Возвращаемся на позицию для записи
-		fseek(fout, current_pos, SEEK_SET);
-		if (duplicate_found == true) {
-			printf("\nДля продолжения нажмите на любую клавишу\n");
-			_getch();
-		}
+		//проверка на не пустой ввод
 		if (st_in.family[0] == '-' and st_in.gr_ind[0] == '-' and st_in.group[0] == '-')
 		{
 			printf("Внимание! Вы ввели во все поля символ \"-\". Пожалуйста, повторите ввод, заполнив информацией хотя бы одно поле.\n\n");
@@ -230,11 +219,14 @@ void write_stud(FILE* fout) {
 			printf("Номер по списку: %s\n", st_in.gr_ind);
 			printf("\nДля подтверждения данных и продолжения записи нажмите Enter.\n");
 			printf("Для изменения полей нажмите R.\n");
-			printf("При нажатии на ESC будет осуществлен возврат в главное меню.\n");
+			printf("При нажатии на ESC будет осуществлено сохранение введенной информации и возврат в главное меню.\n");
 			while (!val_date) {
 				int ans = _getch();
 				if (ans == 13) { // Enter - подтверждение
 					fprintf(fout, "%s;%s;%s\n", st_in.family, st_in.group, st_in.gr_ind);
+					fseek(fout, 0, SEEK_SET); // Возвращаемся в начало файла
+					fprintf(fout, "%d;%d;%d\n", max_fam, max_gr, max_num);
+					fseek(fout, 0, SEEK_END);
 					printf("\nДанные успешно записаны!\n");
 					printf("\nПродолжаем запись.\n");
 					val_date = true;
@@ -245,6 +237,9 @@ void write_stud(FILE* fout) {
 				}
 				else if (ans == 27) { // ESC - выход
 					fprintf(fout, "%s;%s;%s\n", st_in.family, st_in.group, st_in.gr_ind);
+					fseek(fout, 0, SEEK_SET); // Возвращаемся в начало файла
+					fprintf(fout, "%d;%d;%d\n", max_fam, max_gr, max_num);
+					fseek(fout, 0, SEEK_END);
 					printf("\nВозврат в меню...\n");
 					ex = false;
 					val_date = true;
@@ -256,11 +251,15 @@ void write_stud(FILE* fout) {
 }
 void write_pas(FILE* fout) { // функция для заполнения файла с паролями
 	ClearScreen();
-	printf("Для ввода информации о паролях, заполните поля ниже.\nНажмите Enter для подтверждения ввода или введите '#' для возвращения в меню без сохранения введенных данных. \n");
+	printf("Для ввода информации о паролях, заполните поля ниже.\nНажмите\
+ Enter для подтверждения ввода или введите '#'  для возвращения в меню без сохранения введенных данных.\nВ случае, когда информация для данного поля отсутствует введите '-'\n\
+Введение '0' в поле 'номер по списку' равносильно введению '-'.\n\n");
 	Pass pas_in;
 	char inp[size_c];
 	bool ex = true;
 	int a;
+	int max_gr (0), max_pass(0), max_num(0);
+	fseek(fout, 0, SEEK_END);
 	while (ex) {
 		int fl = -1; //проверка на правильность введеной информации
 		// Ввод группы
@@ -296,6 +295,9 @@ void write_pas(FILE* fout) { // функция для заполнения фа�
 			}
 			else {
 				strncpy_s(pas_in.group, inp, sizeof(pas_in.group) - 1);
+				if (strlen(pas_in.group) > max_gr) {
+					max_gr = strlen(pas_in.group);
+				}
 				fl = 1;
 			}
 		}
@@ -365,6 +367,9 @@ void write_pas(FILE* fout) { // функция для заполнения фа�
 				}
 				else {
 					strncpy_s(pas_in.gr_ind, inp, sizeof(pas_in.gr_ind) - 1);
+					if (strlen(pas_in.gr_ind) > max_num) {
+						max_num = strlen(pas_in.gr_ind);
+					}
 					fl = 1;
 				}
 			}
@@ -389,7 +394,7 @@ void write_pas(FILE* fout) { // функция для заполнения фа�
 			string str(inp);
 			if ((a = str.find_first_not_of(num + ENG_let + SPec)) != string::npos) {
 				printf("%*c\n", a + 26, '^');
-				printf("\nОшибка\nДля записи пароля используйте только буквы латинского алфавита, цифры или символы \"~-!@#$ % ^&*(); + `,'\" :<> / |\"\nПовторите ввод\n");
+				printf("\nОшибка\nДля записи пароля используйте только буквы латинского алфавита, цифры или символы \"%s\"\nПовторите ввод\n",(SPec.c_str()));
 				fl = -1;
 			}
 			else if (inp[0] == '\0' or inp[0] == '\n') {
@@ -403,70 +408,56 @@ void write_pas(FILE* fout) { // функция для заполнения фа�
 			else {
 				strncpy_s(pas_in.password, inp, sizeof(pas_in.password) - 1);
 				fl = 1;
+				if (strlen(pas_in.password) > max_pass) {
+					max_pass = strlen(pas_in.password);
+				}
 			}
 		}
 		if (ex == false) {
 			break;
 		}
 		fl = -1;
-		// Временное сохранение позиции файла
-		long current_pos = ftell(fout);
-		// Проверка на дубликаты
-		rewind(fout); // Перемещаемся в начало файла для чтения
-		char line[size_c];
-		bool duplicate_found = false;
-		char* context = NULL;
-		while (fgets(line, sizeof(line), fout)) {
-			line[strcspn(line, "\n")] = 0; // Убираем перевод строки
-			char* group = strtok_s(line, ";", &context);
-			char* gr_ind = strtok_s(NULL, ";", &context);
-			char* password = strtok_s(NULL, ";", &context);
-			if ((password && group && gr_ind)) {
-				if (strcmp(pas_in.group, group) == 0 && strcmp(pas_in.gr_ind, gr_ind) == 0) {
-					printf("\nВнимание\nВ файле уже имеется запись %s %s %s\n",
-						group, gr_ind, password);
-					duplicate_found = true;
-				}
-			}
-		}
-		// Возвращаемся на позицию для записи
-		fseek(fout, current_pos, SEEK_SET);
-		if (duplicate_found == true) {
-			printf("\nДля продолжения нажмите на любую клавишу\n");
-			_getch();
-		}
+		//проверка на пустоту
 		if (pas_in.password[0] == '-' and pas_in.gr_ind[0] == '-' and pas_in.group[0] == '-')
 		{
 			printf("Внимание! Вы ввели во все поля символ \"-\". Пожалуйста, повторите ввод, заполнив информацией хотя бы одно поле.\n\n");
 		}
-		// Подтверждение данных
-		bool val_date = false;
-		printf("\nПроверьте правильность вносимых данных:\n");
-		printf("Группа: %s\n", pas_in.group);
-		printf("Номер по списку: %s\n", pas_in.gr_ind);
-		printf("Пароль: %s\n", pas_in.password);
-		printf("\nДля подтверждения данных и продолжения записи нажмите Enter.\n");
-		printf("Для изменения полей нажмите R.\n");
-		printf("При нажатии на ESC будет осуществлен возврат в главное меню.\n");
-		while (!val_date) {
-			int ans = _getch();
-			if (ans == 13) { // Enter - подтверждение
-				fprintf(fout, "%s;%s;%s\n", pas_in.group, pas_in.gr_ind, pas_in.password);
-				printf("\nДанные успешно записаны!\n");
-				printf("\nПродолжаем запись:\n");
-				val_date = true;
-			}
-			else if (ans == 82 || ans == 114 || ans == 234 || ans == 202) { // R или r - перезапись
-				printf("\nПерезапись данных...\n\n");
-				val_date = true;
-			}
-			else if (ans == 27) { // ESC - выход
-				fprintf(fout, "%s;%s;%s\n", pas_in.group, pas_in.gr_ind, pas_in.password);
-				printf("\nВозврат в меню...\n");
-				ex = false;
-				val_date = true;
+		else{// Подтверждение данных
+			bool val_date = false;
+			printf("\nПроверьте правильность вносимых данных:\n");
+			printf("Группа: %s\n", pas_in.group);
+			printf("Номер по списку: %s\n", pas_in.gr_ind);
+			printf("Пароль: %s\n", pas_in.password);
+			printf("\nДля подтверждения данных и продолжения записи нажмите Enter.\n");
+			printf("Для изменения полей нажмите R.\n");
+			printf("При нажатии на ESC будет осуществлено сохранение введенной информации и возврат в главное меню.\n");
+			while (!val_date) {
+				int ans = _getch();
+				if (ans == 13) { // Enter - подтверждение
+					fprintf(fout, "%s;%s;%s\n", pas_in.group, pas_in.gr_ind, pas_in.password);
+					fseek(fout, 0, SEEK_SET); // Возвращаемся в начало файла
+					fprintf(fout, "%d;%d;%d\n", max_gr, max_num, max_pass);
+					fseek(fout, 0, SEEK_END);
+					printf("\nДанные успешно записаны!\n");
+					printf("\nПродолжаем запись:\n");
+					val_date = true;
+				}
+				else if (ans == 82 || ans == 114 || ans == 234 || ans == 202) { // R или r - перезапись
+					printf("\nПерезапись данных...\n\n");
+					val_date = true;
+				}
+				else if (ans == 27) { // ESC - выход
+					fprintf(fout, "%s;%s;%s\n", pas_in.group, pas_in.gr_ind, pas_in.password);
+					fseek(fout, 0, SEEK_SET); // Возвращаемся в начало файла
+					fprintf(fout, "%d;%d;%d\n", max_gr, max_num, max_pass);
+					fseek(fout, 0, SEEK_END);
+					printf("\nВозврат в меню...\n");
+					ex = false;
+					val_date = true;
+				}
 			}
 		}
+		
 	}
 }
 void write_to_file(string folder_name) {
@@ -520,10 +511,17 @@ void write_to_file(string folder_name) {
 	errno_t err = fopen_s(&fout, path.c_str(), "w+");
 	if (err == 0 && fout != NULL) {
 		printf("Создан файл: %s\n", path.c_str());
-		if (folder_name == ".\\Students\\")
+		if (folder_name == ".\\Students\\") {
+			// Пишем первую строку
+			fprintf(fout, "\n");
 			write_stud(fout);
+		}
 		else if (folder_name == ".\\Passwords\\")
+		{
+			// Пишем первую строку
+			fprintf(fout, "\n");
 			write_pas(fout);
+		}
 		fclose(fout);
 	}
 	else {

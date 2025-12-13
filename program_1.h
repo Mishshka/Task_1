@@ -18,7 +18,7 @@ namespace fs = filesystem;
 const string ENG_let = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 const string RUS_let = "ÀÁÂÃÄÅ¨ÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞ‗אבגדהו¸זחטיךכלםמןנסעףפץצקרשתûü‎‏ÿ";
 const string num = "0123456789";
-const string SPec = "~!-@#$%^&*()+`'\":;,<> / |";
+const string SPec = "~!-@#$%^&*()+`'\":;,<> / _|";
 
 const int size_c = 256;
 
